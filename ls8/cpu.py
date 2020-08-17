@@ -15,6 +15,7 @@ class CPU:
 
         # instruction handlers
         self.HLT = 0b00000001
+        self.LDI = 0b10000010
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -27,13 +28,13 @@ class CPU:
         """Load a program into memory."""
 
         address = 0
-        
+
         # For now, we've just hardcoded a program:
 
         program = [
             # 0b prefix denotes binary
             # From print8.ls8
-            0b10000010, # LDI R0,8
+            self.LDI, # LDI R0,8
             0b00000000,
             0b00001000,
             0b01000111, # PRN R0
@@ -86,7 +87,12 @@ class CPU:
 
             if cmd == "ADD":
                 self.alu("ADD", operand_a, operand_b)
+                self.op_size = 3
             elif cmd == self.HLT:
                 self.running = False
+            elif cmd == self.LDI:
+                to_integer = self.reg[self.pc]
+                self.reg[self.pc] = int(to_integer)
+
 
         self.trace()
