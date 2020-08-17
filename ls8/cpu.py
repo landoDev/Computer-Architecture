@@ -62,9 +62,9 @@ class CPU:
             self.pc,
             #self.fl,
             #self.ie,
-            # self.ram_read(self.pc),
-            # self.ram_read(self.pc + 1),
-            # self.ram_read(self.pc + 2)
+            self.ram_read(self.pc),
+            self.ram_read(self.pc + 1),
+            self.ram_read(self.pc + 2)
         ), end='')
 
         for i in range(8):
@@ -74,4 +74,14 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        # FETCH, DECODE, EXECUTE
+        self.load()
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        while self.running:
+            cmd = self.ram[self.pc]
+
+            if cmd == "ADD":
+                self.alu("ADD", operand_a, operand_b)
+
+        self.trace()
