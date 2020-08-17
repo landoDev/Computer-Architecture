@@ -13,8 +13,11 @@ class CPU:
         self.op_size = 1
         self.running = True
 
-        
-        
+    def ram_read(self, MAR):
+        return self.ram[MAR]
+    
+    def ram_write(self, MAR, MDR):
+        self.ram[MAR] =  MDR
 
 
     def load(self):
