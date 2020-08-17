@@ -16,6 +16,7 @@ class CPU:
         # instruction handlers
         self.HLT = 0b00000001
         self.LDI = 0b10000010
+        self.PRN = 0b01000111
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -37,7 +38,7 @@ class CPU:
             self.LDI, # LDI R0,8
             0b00000000,
             0b00001000,
-            0b01000111, # PRN R0
+            self.PRN, # PRN R0
             0b00000000,
             self.HLT, # HLT
         ]
@@ -79,20 +80,23 @@ class CPU:
     def run(self):
         """Run the CPU."""
         # FETCH, DECODE, EXECUTE
-        self.load()
-        operand_a = self.ram_read(self.pc + 1)
-        operand_b = self.ram_read(self.pc + 2)
-        while self.running:
-            cmd = self.ram[self.pc]
-
-            if cmd == "ADD":
-                self.alu("ADD", operand_a, operand_b)
-                self.op_size = 3
-            elif cmd == self.HLT:
-                self.running = False
-            elif cmd == self.LDI:
-                to_integer = self.reg[self.pc]
-                self.reg[self.pc] = int(to_integer)
-
-
         self.trace()
+
+        while self.running:
+            IR = self.ram_read(self.pc)
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+
+            if IR == "ADD":
+                self.alu("ADD", operand_a, operand_b)
+                self.pc += 3
+            elif IR == self.HLT:
+                self.running = False
+                self.pc += 1
+            elif IR == self.LDI:
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+            elif IR == self.PRN:
+                num = self.reg[int(str(operand_a))]
+                print(num)
+                self.pc += 2
