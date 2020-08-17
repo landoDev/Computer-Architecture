@@ -7,7 +7,15 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256
+        self.reg = [0] * 8
+        self.pc = 0
+        self.op_size = 1
+        self.running = True
+
+        
+        
+
 
     def load(self):
         """Load a program into memory."""
@@ -17,6 +25,7 @@ class CPU:
         # For now, we've just hardcoded a program:
 
         program = [
+            # 0b prefix denotes binary
             # From print8.ls8
             0b10000010, # LDI R0,8
             0b00000000,
@@ -50,9 +59,9 @@ class CPU:
             self.pc,
             #self.fl,
             #self.ie,
-            self.ram_read(self.pc),
-            self.ram_read(self.pc + 1),
-            self.ram_read(self.pc + 2)
+            # self.ram_read(self.pc),
+            # self.ram_read(self.pc + 1),
+            # self.ram_read(self.pc + 2)
         ), end='')
 
         for i in range(8):
