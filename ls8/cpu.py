@@ -13,6 +13,9 @@ class CPU:
         self.op_size = 1
         self.running = True
 
+        # instruction handlers
+        self.HLT = 0b00000001
+
     def ram_read(self, MAR):
         return self.ram[MAR]
     
@@ -24,7 +27,7 @@ class CPU:
         """Load a program into memory."""
 
         address = 0
-
+        
         # For now, we've just hardcoded a program:
 
         program = [
@@ -35,7 +38,7 @@ class CPU:
             0b00001000,
             0b01000111, # PRN R0
             0b00000000,
-            0b00000001, # HLT
+            self.HLT, # HLT
         ]
 
         for instruction in program:
@@ -83,5 +86,7 @@ class CPU:
 
             if cmd == "ADD":
                 self.alu("ADD", operand_a, operand_b)
+            elif cmd == self.HLT:
+                self.running = False
 
         self.trace()
