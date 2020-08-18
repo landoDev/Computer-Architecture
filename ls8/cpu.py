@@ -25,27 +25,39 @@ class CPU:
         self.ram[MAR] =  MDR
 
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
 
-        address = 0
-
+        try:
+            address = 0
+            with open(filename) as f:
+                for line in f:
+                    split_comment = line.split("#")
+                    # strip the whitespace and other chars
+                    n = split_comment[0].strip()
+                    if n == '':
+                        continue
+                    value = int(n, 2)
+                    self.ram[address] = value
+                    address += 1
+        except FileNotFoundError:
+            print(f"{sys.argv[0]}: {filename} not found")
         # For now, we've just hardcoded a program:
 
-        program = [
-            # 0b prefix denotes binary
-            # From print8.ls8
-            self.LDI, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            self.PRN, # PRN R0
-            0b00000000,
-            self.HLT, # HLT
-        ]
+        # program = [
+        #     # 0b prefix denotes binary
+        #     # From print8.ls8
+        #     self.LDI, # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     self.PRN, # PRN R0
+        #     0b00000000,
+        #     self.HLT, # HLT
+        # ]
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
 
 
     def alu(self, op, reg_a, reg_b):
