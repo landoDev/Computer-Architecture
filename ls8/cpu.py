@@ -111,20 +111,24 @@ class CPU:
                 reg_index = self.ram[self.pc + 1]
                 value = self.reg[reg_index]
                 # decrement the pointer
-                self.reg[self.sp] -= 1
+                self.reg[reg_index] -= 1
                 # insert the value onto the stack, find the value of the SP in RAM
                 self.ram[self.reg[self.sp]] = value
                 # two ops
                 self.pc += 2
-                pass
+
             elif IR == self.POP:
                 # set up, grab reg index from memory, set val with the SP in ram
+                reg_index = self.ram[self.pc + 1]
+                value = self.ram[self.reg[self.sp]]
 
                 # take the value from the stack and put it in reg
+                self.reg[reg_index] = value
 
                 # increment SP
+                self.reg[self.sp] += 1
 
                 # two ops
+                self.pc += 2
 
-                pass
 
