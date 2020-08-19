@@ -20,6 +20,8 @@ class CPU:
         self.ADD = 0b10100000
         self.MUL = 0b10100010
         # implement push and pop to implement stack day 3
+        self.PUSH = 0b01000101
+        self.POP = 0b01000110
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -103,3 +105,23 @@ class CPU:
                 num = self.reg[int(str(operand_a))]
                 print(num)
                 self.pc += 2
+            elif IR == self.PUSH:
+                # set up, grap reg_index from memory and grab the value from reg
+
+                # decrement the pointer
+
+                # insert the value onto the stack, find the value of the SP in RAM
+
+                # two ops
+                pass
+            elif IR == self.POP:
+                # set up, grab reg index from memory, set val with the SP in ram
+
+                # take the value from the stack and put it in reg
+
+                # increment SP
+
+                # two ops
+
+                pass
+
