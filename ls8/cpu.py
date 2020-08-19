@@ -40,13 +40,13 @@ class CPU:
         self.ram[MAR] =  MDR
 
     # operation methods
-    def HLT(self):
+    def HLT(self, operand_a, operand_b):
         self.running = False
         self.pc += 1
     def LDI(self, operand_a, operand_b):
         self.reg[operand_a] = operand_b
         self.pc += 3
-    def PRN(self, operand_a):
+    def PRN(self, operand_a, operand_b):
         num = self.reg[int(str(operand_a))]
         print(num)
         self.pc += 2
@@ -56,7 +56,7 @@ class CPU:
     def MUL(self, operand_a, operand_b):
         self.alu("MUL", operand_a, operand_b)
         self.pc += 3
-    def PUSH(self):
+    def PUSH(self, operand_a, operand_b):
         # set up, grap reg_index from memory and grab the value from reg
         reg_index = self.ram[self.pc + 1]
         value = self.reg[reg_index]
@@ -66,7 +66,7 @@ class CPU:
         self.ram[self.reg[self.sp]] = value
         # two ops
         self.pc += 2
-    def POP(self):
+    def POP(self, operand_a, operand_b):
         # set up, grab reg index from memory, set val with the SP in ram
         reg_index = self.ram[self.pc + 1]
         value = self.ram[self.reg[self.sp]]
