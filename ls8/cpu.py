@@ -19,6 +19,7 @@ class CPU:
         self.PRN = 0b01000111
         self.ADD = 0b10100000
         self.MUL = 0b10100010
+        # implement push and pop to implement stack day 3
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -44,23 +45,6 @@ class CPU:
                     address += 1
         except FileNotFoundError:
             print(f"{sys.argv[0]}: {filename} not found")
-        # For now, we've just hardcoded a program:
-
-        # program = [
-        #     # 0b prefix denotes binary
-        #     # From print8.ls8
-        #     self.LDI, # LDI R0,8
-        #     0b00000000,
-        #     0b00001000,
-        #     self.PRN, # PRN R0
-        #     0b00000000,
-        #     self.HLT, # HLT
-        # ]
-
-        # for instruction in program:
-        #     self.ram[address] = instruction
-        #     address += 1
-
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
