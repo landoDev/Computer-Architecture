@@ -46,18 +46,39 @@ class CPU:
     def LDI(self, operand_a, operand_b):
         self.reg[operand_a] = operand_b
         self.pc += 3
-    def PRN(self):
-        pass
-    def ADD(self):
+    def PRN(self, operand_a):
+        num = self.reg[int(str(operand_a))]
+        print(num)
+        self.pc += 2
+    def ADD(self, operand_a, operand_b):
         self.alu("ADD", operand_a, operand_b)
         self.pc += 3
-    def MUL(self):
+    def MUL(self, operand_a, operand_b):
         self.alu("MUL", operand_a, operand_b)
         self.pc += 3
     def PUSH(self):
-        pass
+        # set up, grap reg_index from memory and grab the value from reg
+        reg_index = self.ram[self.pc + 1]
+        value = self.reg[reg_index]
+        # decrement the pointer
+        self.reg[reg_index] -= 1
+        # insert the value onto the stack, find the value of the SP in RAM
+        self.ram[self.reg[self.sp]] = value
+        # two ops
+        self.pc += 2
     def POP(self):
-        pass
+        # set up, grab reg index from memory, set val with the SP in ram
+        reg_index = self.ram[self.pc + 1]
+        value = self.ram[self.reg[self.sp]]
+
+        # take the value from the stack and put it in reg
+        self.reg[reg_index] = value
+
+        # increment SP
+        self.reg[self.sp] += 1
+
+        # two ops
+        self.pc += 2
 
     def load(self, filename):
         """Load a program into memory."""
@@ -118,45 +139,47 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if IR == self.ADD:
-                self.alu("ADD", operand_a, operand_b)
-                self.pc += 3
-            if IR == self.MUL:
-                self.alu("MUL", operand_a, operand_b)
-                self.pc += 3
-            elif IR == self.HLT:
-                self.running = False
-                self.pc += 1
-            elif IR == self.LDI:
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-            elif IR == self.PRN:
-                num = self.reg[int(str(operand_a))]
-                print(num)
-                self.pc += 2
-            elif IR == self.PUSH:
-                # set up, grap reg_index from memory and grab the value from reg
-                reg_index = self.ram[self.pc + 1]
-                value = self.reg[reg_index]
-                # decrement the pointer
-                self.reg[reg_index] -= 1
-                # insert the value onto the stack, find the value of the SP in RAM
-                self.ram[self.reg[self.sp]] = value
-                # two ops
-                self.pc += 2
+            self.branchtable[IR](operand_a, operand_b)
 
-            elif IR == self.POP:
-                # set up, grab reg index from memory, set val with the SP in ram
-                reg_index = self.ram[self.pc + 1]
-                value = self.ram[self.reg[self.sp]]
+            # if IR == self.ADD:
+            #     self.alu("ADD", operand_a, operand_b)
+            #     self.pc += 3
+            # if IR == self.MUL:
+            #     self.alu("MUL", operand_a, operand_b)
+            #     self.pc += 3
+            # elif IR == self.HLT:
+            #     self.running = False
+            #     self.pc += 1
+            # elif IR == self.LDI:
+            #     self.reg[operand_a] = operand_b
+            #     self.pc += 3
+            # elif IR == self.PRN:
+            #     num = self.reg[int(str(operand_a))]
+            #     print(num)
+            #     self.pc += 2
+            # elif IR == self.PUSH:
+            #     # set up, grap reg_index from memory and grab the value from reg
+            #     reg_index = self.ram[self.pc + 1]
+            #     value = self.reg[reg_index]
+            #     # decrement the pointer
+            #     self.reg[reg_index] -= 1
+            #     # insert the value onto the stack, find the value of the SP in RAM
+            #     self.ram[self.reg[self.sp]] = value
+            #     # two ops
+            #     self.pc += 2
 
-                # take the value from the stack and put it in reg
-                self.reg[reg_index] = value
+            # elif IR == self.POP:
+            #     # set up, grab reg index from memory, set val with the SP in ram
+            #     reg_index = self.ram[self.pc + 1]
+            #     value = self.ram[self.reg[self.sp]]
 
-                # increment SP
-                self.reg[self.sp] += 1
+            #     # take the value from the stack and put it in reg
+            #     self.reg[reg_index] = value
 
-                # two ops
-                self.pc += 2
+            #     # increment SP
+            #     self.reg[self.sp] += 1
+
+            #     # two ops
+            #     self.pc += 2
 
 
