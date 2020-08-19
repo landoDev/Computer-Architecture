@@ -14,15 +14,24 @@ class CPU:
         self.op_size = 1
         self.running = True
 
-        # instruction handlers
-        self.HLT = 0b00000001
-        self.LDI = 0b10000010
-        self.PRN = 0b01000111
-        self.ADD = 0b10100000
-        self.MUL = 0b10100010
+        # branchtable
+        self.branchtable = {
+            0b00000001: self.HLT,
+            0b10000010: self.LDI,
+            0b01000111: self.PRN,
+            0b10100000: self.ADD,
+            0b10100010: self.MUL,
+            0b01000101: self.PUSH,
+            0b01000110: self.POP
+        }
+        # self.HLT = 0b00000001
+        # self.LDI = 0b10000010
+        # self.PRN = 0b01000111
+        # self.ADD = 0b10100000
+        # self.MUL = 0b10100010
         # implement push and pop to implement stack day 3
-        self.PUSH = 0b01000101
-        self.POP = 0b01000110
+        # self.PUSH = 0b01000101
+        # self.POP = 0b01000110
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -30,6 +39,25 @@ class CPU:
     def ram_write(self, MAR, MDR):
         self.ram[MAR] =  MDR
 
+    # operation methods
+    def HLT(self):
+        self.running = False
+        self.pc += 1
+    def LDI(self, operand_a, operand_b):
+        self.reg[operand_a] = operand_b
+        self.pc += 3
+    def PRN(self):
+        pass
+    def ADD(self):
+        self.alu("ADD", operand_a, operand_b)
+        self.pc += 3
+    def MUL(self):
+        self.alu("MUL", operand_a, operand_b)
+        self.pc += 3
+    def PUSH(self):
+        pass
+    def POP(self):
+        pass
 
     def load(self, filename):
         """Load a program into memory."""
