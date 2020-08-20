@@ -7,35 +7,119 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256
+        self.reg = [0] * 8
+        self.pc = 0
+        self.sp = 7
+        self.op_size = 1
+        self.running = True
 
-    def load(self):
+        # branchtable
+        self.branchtable = {
+            0b00000001: self.HLT,
+            0b10000010: self.LDI,
+            0b01000111: self.PRN,
+            0b10100000: self.ADD,
+            0b10100010: self.MUL,
+            0b01000101: self.PUSH,
+            0b01000110: self.POP,
+            0b01010000: self.CALL,
+            0b00010001: self.RET
+        }
+        # self.HLT = 0b00000001
+        # self.LDI = 0b10000010
+        # self.PRN = 0b01000111
+        # self.ADD = 0b10100000
+        # self.MUL = 0b10100010
+        # implement push and pop to implement stack day 3
+        # self.PUSH = 0b01000101
+        # self.POP = 0b01000110
+
+    def ram_read(self, MAR):
+        return self.ram[MAR]
+    
+    def ram_write(self, MAR, MDR):
+        self.ram[MAR] =  MDR
+
+    # operation methods
+    def HLT(self, operand_a, operand_b):
+        self.running = False
+        self.pc += 1
+    def LDI(self, operand_a, operand_b):
+        self.reg[operand_a] = operand_b
+        self.pc += 3
+    def PRN(self, operand_a, operand_b):
+        num = self.reg[int(str(operand_a))]
+        print(num)
+        self.pc += 2
+    def ADD(self, operand_a, operand_b):
+        self.alu("ADD", operand_a, operand_b)
+        self.pc += 3
+    def MUL(self, operand_a, operand_b):
+        self.alu("MUL", operand_a, operand_b)
+        self.pc += 3
+    def PUSH(self, operand_a, operand_b):
+        # set up, grap reg_index from memory and grab the value from reg
+        reg_index = self.ram[self.pc + 1]
+        value = self.reg[reg_index]
+        # decrement the pointer
+        self.reg[reg_index] -= 1
+        # insert the value onto the stack, find the value of the SP in RAM
+        self.ram[self.reg[self.sp]] = value
+        # two ops
+        self.pc += 2
+    def POP(self, operand_a, operand_b):
+        # set up, grab reg index from memory, set val with the SP in ram
+        reg_index = self.ram[self.pc + 1]
+        value = self.ram[self.reg[self.sp]]
+
+        # take the value from the stack and put it in reg
+        self.reg[reg_index] = value
+
+        # increment SP
+        self.reg[self.sp] += 1
+
+        # two ops
+        self.pc += 2
+    def CALL(self, operand_a, operand_b):
+        # decrement sp
+        self.reg[self.sp] -= 1   
+        # push return address to stack
+        self.ram[self.reg[self.sp]] = self.pc + 2
+        # set the pc to the subroutines address
+        reg_index = self.ram[self.pc + 1]
+        self.pc = self.reg[reg_index]
+        # remember to set opsize to 0 ??
+
+    def RET(self, operand_a, operand_b):
+        self.pc = self.ram[self.reg[self.sp]]
+        self.reg[self.sp] += 1
+
+    def load(self, filename):
         """Load a program into memory."""
 
-        address = 0
-
-        # For now, we've just hardcoded a program:
-
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
-
+        try:
+            address = 0
+            with open(filename) as f:
+                for line in f:
+                    split_comment = line.split("#")
+                    # strip the whitespace and other chars
+                    n = split_comment[0].strip()
+                    if n == '':
+                        continue
+                    value = int(n, 2)
+                    self.ram[address] = value
+                    address += 1
+        except FileNotFoundError:
+            print(f"{sys.argv[0]}: {filename} not found")
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -62,4 +146,57 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        # FETCH, DECODE, EXECUTE
+        self.trace()
+
+        while self.running:
+            IR = self.ram_read(self.pc)
+            # there is a key error in the print8 program
+            # need help debugging that 
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+
+            self.branchtable[IR](operand_a, operand_b)
+
+            # if IR == self.ADD:
+            #     self.alu("ADD", operand_a, operand_b)
+            #     self.pc += 3
+            # if IR == self.MUL:
+            #     self.alu("MUL", operand_a, operand_b)
+            #     self.pc += 3
+            # elif IR == self.HLT:
+            #     self.running = False
+            #     self.pc += 1
+            # elif IR == self.LDI:
+            #     self.reg[operand_a] = operand_b
+            #     self.pc += 3
+            # elif IR == self.PRN:
+            #     num = self.reg[int(str(operand_a))]
+            #     print(num)
+            #     self.pc += 2
+            # elif IR == self.PUSH:
+            #     # set up, grap reg_index from memory and grab the value from reg
+            #     reg_index = self.ram[self.pc + 1]
+            #     value = self.reg[reg_index]
+            #     # decrement the pointer
+            #     self.reg[reg_index] -= 1
+            #     # insert the value onto the stack, find the value of the SP in RAM
+            #     self.ram[self.reg[self.sp]] = value
+            #     # two ops
+            #     self.pc += 2
+
+            # elif IR == self.POP:
+            #     # set up, grab reg index from memory, set val with the SP in ram
+            #     reg_index = self.ram[self.pc + 1]
+            #     value = self.ram[self.reg[self.sp]]
+
+            #     # take the value from the stack and put it in reg
+            #     self.reg[reg_index] = value
+
+            #     # increment SP
+            #     self.reg[self.sp] += 1
+
+            #     # two ops
+            #     self.pc += 2
+
+
