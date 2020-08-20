@@ -22,7 +22,9 @@ class CPU:
             0b10100000: self.ADD,
             0b10100010: self.MUL,
             0b01000101: self.PUSH,
-            0b01000110: self.POP
+            0b01000110: self.POP,
+            0b01010000: self.CALL,
+            0b00010001: self.RET
         }
         # self.HLT = 0b00000001
         # self.LDI = 0b10000010
@@ -79,6 +81,10 @@ class CPU:
 
         # two ops
         self.pc += 2
+    def CALL(self, operand_a, operand_b):
+        pass
+    def RET(self, operand_a, operand_b):
+        pass
 
     def load(self, filename):
         """Load a program into memory."""
@@ -136,6 +142,8 @@ class CPU:
 
         while self.running:
             IR = self.ram_read(self.pc)
+            # there is a key error in the print8 program
+            # need help debugging that 
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
