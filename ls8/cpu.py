@@ -82,9 +82,18 @@ class CPU:
         # two ops
         self.pc += 2
     def CALL(self, operand_a, operand_b):
-        pass
+        # decrement sp
+        self.reg[self.sp] -= 1   
+        # push return address to stack
+        self.ram[self.reg[self.sp]] = self.pc + 2
+        # set the pc to the subroutines address
+        reg_index = self.ram[self.pc + 1]
+        self.pc = self.reg[reg_index]
+        # remember to set opsize to 0 ??
+
     def RET(self, operand_a, operand_b):
-        pass
+        self.pc = self.ram[self.reg[self.sp]]
+        self.reg[self.sp] += 1
 
     def load(self, filename):
         """Load a program into memory."""
